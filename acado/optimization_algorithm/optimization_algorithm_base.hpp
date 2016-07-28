@@ -23,12 +23,10 @@
  *
  */
 
-
 /**
  *    \file include/acado/optimization_algorithm/optimization_algorithm_base.hpp
  *    \author Boris Houska, Hans Joachim Ferreau
  */
-
 
 #ifndef ACADO_TOOLKIT_OPTIMIZATION_ALGORITHM_BASE_HPP
 #define ACADO_TOOLKIT_OPTIMIZATION_ALGORITHM_BASE_HPP
@@ -39,11 +37,9 @@
 #include <acado/nlp_solver/nlp_solver.hpp>
 #include <acado/nlp_solver/scp_method.hpp>
 
-
 BEGIN_NAMESPACE_ACADO
 
 class OCP;
-
 
 /**
 Notes:
@@ -51,201 +47,153 @@ Notes:
 
 **/
 
-/** 
+/**
  *	\brief Base class for user-interfaces to formulate and solve optimal control problems and static NLPs.
  *
  *	\ingroup AuxiliaryFunctionality
  *
- *	The class OptimizationAlgorithmBase serves as a base class for user-interfaces 
- *  to formulate and solve optimal control problems and static nonlinear programming (NLP) 
+ *	The class OptimizationAlgorithmBase serves as a base class for user-interfaces
+ *  to formulate and solve optimal control problems and static nonlinear programming (NLP)
  *	problems.
  *
  *  \author Boris Houska, Hans Joachim Ferreau
  */
 class OptimizationAlgorithmBase
 {
-    //
-    // PUBLIC MEMBER FUNCTIONS:
-    //
-    public:
+  //
+  // PUBLIC MEMBER FUNCTIONS:
+  //
+public:
+  /** Default constructor. */
+  OptimizationAlgorithmBase();
 
-        /** Default constructor. */
-        OptimizationAlgorithmBase();
+  /** Default constructor. */
+  OptimizationAlgorithmBase(const OCP& ocp_);
 
-        /** Default constructor. */
-        OptimizationAlgorithmBase( const OCP& ocp_ );
+  /** Copy constructor (deep copy). */
+  OptimizationAlgorithmBase(const OptimizationAlgorithmBase& arg);
 
-        /** Copy constructor (deep copy). */
-        OptimizationAlgorithmBase( const OptimizationAlgorithmBase& arg );
+  /** Destructor. */
+  virtual ~OptimizationAlgorithmBase();
 
-        /** Destructor. */
-        virtual ~OptimizationAlgorithmBase( );
+  /** Assignment operator (deep copy). */
+  OptimizationAlgorithmBase& operator=(const OptimizationAlgorithmBase& arg);
 
-        /** Assignment operator (deep copy). */
-        OptimizationAlgorithmBase& operator=( const OptimizationAlgorithmBase& arg );
+  /** Initialization of the optimization variables. */
+  returnValue initializeDifferentialStates(const char* fileName, BooleanType autoinit = BT_FALSE);
+  returnValue initializeAlgebraicStates(const char* fileName, BooleanType autoinit = BT_FALSE);
+  returnValue initializeParameters(const char* fileName);
+  returnValue initializeControls(const char* fileName);
+  returnValue initializeDisturbances(const char* fileName);
 
+  returnValue initializeDifferentialStates(const VariablesGrid& xd_init_, BooleanType autoinit = BT_FALSE);
+  returnValue initializeAlgebraicStates(const VariablesGrid& xa_init_, BooleanType autoinit = BT_FALSE);
+  returnValue initializeParameters(const VariablesGrid& u_init_);
+  returnValue initializeControls(const VariablesGrid& p_init_);
+  returnValue initializeDisturbances(const VariablesGrid& w_init_);
 
-        /** Initialization of the optimization variables. */
-        returnValue initializeDifferentialStates( const char* fileName , BooleanType autoinit=BT_FALSE);
-        returnValue initializeAlgebraicStates   ( const char* fileName , BooleanType autoinit=BT_FALSE);
-        returnValue initializeParameters        ( const char* fileName);
-        returnValue initializeControls          ( const char* fileName);
-        returnValue initializeDisturbances      ( const char* fileName);
+  /** Use this call to overwrite all states by a single shooting initialization.
+   *  This function takes the initial state and controls and overwrite all states
+   *  apart from the first one by simulation.
+   */
+  returnValue simulateStatesForInitialization();
 
-        returnValue initializeDifferentialStates( const VariablesGrid &xd_init_ , BooleanType autoinit=BT_FALSE);
-        returnValue initializeAlgebraicStates   ( const VariablesGrid &xa_init_ , BooleanType autoinit=BT_FALSE);
-        returnValue initializeParameters        ( const VariablesGrid &u_init_);
-        returnValue initializeControls          ( const VariablesGrid &p_init_);
-        returnValue initializeDisturbances      ( const VariablesGrid &w_init_);
+  returnValue getDifferentialStates(VariablesGrid& xd_) const;
+  returnValue getAlgebraicStates(VariablesGrid& xa_) const;
+  returnValue getParameters(VariablesGrid& u_) const;
+  returnValue getParameters(DVector& u_) const;
+  returnValue getControls(VariablesGrid& p_) const;
+  returnValue getDisturbances(VariablesGrid& w_) const;
 
-        /** Use this call to overwrite all states by a single shooting initialization.
-         *  This function takes the initial state and controls and overwrite all states
-         *  apart from the first one by simulation.
-         */
-        returnValue simulateStatesForInitialization();
+  returnValue getDifferentialStates(const char* fileName) const;
+  returnValue getAlgebraicStates(const char* fileName) const;
+  returnValue getParameters(const char* fileName) const;
+  returnValue getControls(const char* fileName) const;
+  returnValue getDisturbances(const char* fileName) const;
 
-        returnValue getDifferentialStates( VariablesGrid &xd_ ) const;
-        returnValue getAlgebraicStates   ( VariablesGrid &xa_ ) const;
-        returnValue getParameters        ( VariablesGrid &u_  ) const;
-        returnValue getParameters        ( DVector &u_  ) const;
-        returnValue getControls          ( VariablesGrid &p_  ) const;
-        returnValue getDisturbances      ( VariablesGrid &w_  ) const;
+  double getObjectiveValue(const char* fileName) const;
+  double getObjectiveValue() const;
 
-        returnValue getDifferentialStates( const char* fileName ) const;
-        returnValue getAlgebraicStates   ( const char* fileName ) const;
-        returnValue getParameters        ( const char* fileName ) const;
-        returnValue getControls          ( const char* fileName ) const;
-        returnValue getDisturbances      ( const char* fileName ) const;
+  returnValue getSensitivitiesX(BlockMatrix& _sens) const;
 
-        double getObjectiveValue         ( const char* fileName ) const;
-        double getObjectiveValue         () const;
+  returnValue getSensitivitiesXA(BlockMatrix& _sens) const;
 
-		
-		returnValue getSensitivitiesX(	BlockMatrix& _sens
-										) const;
+  returnValue getSensitivitiesP(BlockMatrix& _sens) const;
 
-		returnValue getSensitivitiesXA(	BlockMatrix& _sens
-										) const;
+  returnValue getSensitivitiesU(BlockMatrix& _sens) const;
 
-		returnValue getSensitivitiesP(	BlockMatrix& _sens
-										) const;
+  returnValue getSensitivitiesW(BlockMatrix& _sens) const;
 
-		returnValue getSensitivitiesU(	BlockMatrix& _sens
-										) const;
+  /** Returns number of differential states.
+   *  \return Number of differential states */
+  virtual uint getNX() const;
 
-		returnValue getSensitivitiesW(	BlockMatrix& _sens
-										) const;
+  /** Returns number of algebraic states.
+   *  \return Number of algebraic states */
+  virtual uint getNXA() const;
 
+  /** Returns number of parameters.
+   *  \return Number of parameters */
+  virtual uint getNP() const;
 
-		/** Returns number of differential states.
-		 *  \return Number of differential states */
-		virtual uint getNX( ) const;
+  /** Returns number of controls.
+   *  \return Number of controls */
+  virtual uint getNU() const;
 
-		/** Returns number of algebraic states.
-		 *  \return Number of algebraic states */
-		virtual uint getNXA( ) const;
+  /** Returns number of disturbances.
+   *  \return Number of disturbances */
+  virtual uint getNW() const;
 
-		/** Returns number of parameters.
-		 *  \return Number of parameters */
-		virtual uint getNP( ) const;
+  double getStartTime() const;
 
-		/** Returns number of controls.
-		 *  \return Number of controls */
-		virtual uint getNU( ) const;
+  double getEndTime() const;
 
-		/** Returns number of disturbances.
-		 *  \return Number of disturbances */
-		virtual uint getNW( ) const;
+  returnValue clear();
+  //
+  // PROTECTED MEMBER FUNCTIONS:
+  //
+protected:
+  /** Initializes everything. */
+  returnValue init(UserInteraction* _userIteraction);
 
+  BooleanType isLinearQuadratic(Objective* F, DynamicDiscretization* G, Constraint* H) const;
 
-		double getStartTime ( ) const;
+  virtual returnValue allocateNlpSolver(Objective* F, DynamicDiscretization* G, Constraint* H) = 0;
 
-		double getEndTime( ) const;
+  virtual returnValue initializeNlpSolver(const OCPiterate& _userInit) = 0;
 
+  virtual returnValue initializeObjective(Objective* F) = 0;
 
-    //
-    // PROTECTED MEMBER FUNCTIONS:
-    //
-    protected:
+  virtual returnValue extractOCPdata(Objective** objective, DifferentialEquation*** differentialEquation,
+                                     Constraint** constraint, Grid& unionGrid);
 
-		returnValue clear( );
+  virtual returnValue setupObjective(Objective* objective, DifferentialEquation** differentialEquation,
+                                     Constraint* constraint, Grid unionGrid);
 
-		/** Initializes everything. */
-		returnValue init(	UserInteraction* _userIteraction
-							);
+  virtual returnValue setupDifferentialEquation(Objective* objective, DifferentialEquation** differentialEquation,
+                                                Constraint* constraint, Grid unionGrid);
 
-		BooleanType isLinearQuadratic(	Objective *F,
-										DynamicDiscretization *G,
-										Constraint *H
-										) const;
+  virtual returnValue setupDynamicDiscretization(UserInteraction* _userIteraction, Objective* objective,
+                                                 DifferentialEquation** differentialEquation, Constraint* constraint,
+                                                 Grid unionGrid, DynamicDiscretization** dynamicDiscretization);
 
-        virtual returnValue allocateNlpSolver(	Objective *F,
-												DynamicDiscretization *G,
-												Constraint *H
-												) = 0;
+  virtual returnValue determineDimensions(Objective* const _objective,
+                                          DifferentialEquation** const _differentialEquation,
+                                          Constraint* const _constraint, uint& _nx, uint& _nxa, uint& _np, uint& _nu,
+                                          uint& _nw) const;
 
-        virtual returnValue initializeNlpSolver(	const OCPiterate& _userInit
-													) = 0;
+  virtual returnValue initializeOCPiterate(Constraint* const _constraint, const Grid& _unionGrid, uint nx, uint nxa,
+                                           uint np, uint nu, uint nw);
 
-        virtual returnValue initializeObjective(	Objective* F
-													) = 0;
+  //
+  // DATA MEMBERS:
+  //
+protected:
+  NLPsolver* nlpSolver;
+  OCP* ocp;
 
-
-		virtual returnValue extractOCPdata(	Objective** objective,
-											DifferentialEquation*** differentialEquation,
-											Constraint** constraint,
-											Grid& unionGrid
-											);
-
-		virtual returnValue setupObjective(	Objective* objective,
-											DifferentialEquation** differentialEquation,
-											Constraint* constraint,
-											Grid unionGrid
-											);
-
-		virtual returnValue setupDifferentialEquation(	Objective* objective,
-														DifferentialEquation** differentialEquation,
-														Constraint* constraint,
-														Grid unionGrid
-														);
-
-		virtual returnValue setupDynamicDiscretization(	UserInteraction* _userIteraction,
-														Objective* objective,
-														DifferentialEquation** differentialEquation,
-														Constraint* constraint,
-														Grid unionGrid,
-														DynamicDiscretization** dynamicDiscretization
-														);
-
-		virtual returnValue determineDimensions(	Objective* const _objective,
-													DifferentialEquation** const _differentialEquation,
-													Constraint* const _constraint,
-													uint& _nx,
-													uint& _nxa,
-													uint& _np,
-													uint& _nu,
-													uint& _nw
-													) const;
-
-		virtual returnValue initializeOCPiterate(	Constraint* const _constraint,
-													const Grid& _unionGrid,
-													uint nx,
-													uint nxa,
-													uint np,
-													uint nu,
-													uint nw
-													);
-
-    //
-    // DATA MEMBERS:
-    //
-    protected:
-
-        NLPsolver *nlpSolver ;
-        OCP       *ocp       ;
-
-		OCPiterate iter;
-		OCPiterate userInit;
+  OCPiterate iter;
+  OCPiterate userInit;
 };
 
 CLOSE_NAMESPACE_ACADO
