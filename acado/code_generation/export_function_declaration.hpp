@@ -99,7 +99,6 @@ class ExportFunctionDeclaration : public ExportStatement
 										) const;
 
     private:
-		ExportFunctionDeclaration( );
 
 		const ExportFunction& f;
 };
